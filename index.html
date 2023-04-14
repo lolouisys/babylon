@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            
+            #canvasZone {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+<body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var createScene = async function () {
+
+    // This creates a basic Babylon Scene object (non-mesh)
+    var scene = new BABYLON.Scene(engine);
+
+    // This creates and positions an arc rotate camera (non-mesh)
+    var camera = new BABYLON.ArcRotateCamera("Camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(90), 5, new BABYLON.Vector3(0, 0, 0), scene);    
+    camera.attachControl(canvas, false);
+
+    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+    var lightHemi = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    // Default intensity is 1. Let's dim the light a small amount
+    lightHemi.intensity = 0.7;
+
+    //Creates a new standard material and sets the diffuse color to blue.
+    var newMaterial = new BABYLON.StandardMaterial;
+    newMaterial.diffuseColor = new BABYLON.Color3.Blue;
+
+    //add glow layer
+    const gl = new
+    BABYLON.GlowLayer("glow", scene);
+
+    //-----chatgpt help create skybox
+    // create a new environment texture
+    const envTexture = new BABYLON.CubeTexture("https://raw.githubusercontent.com/lolouisys/babylon/main/sky.env", scene);
+
+    // create a new skybox
+    const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene);
+    const skyboxMaterial = new BABYLON.StandardMaterial("skyBoxMaterial", scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = envTexture;
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.disableLighting = true;
+    skybox.material = skyboxMaterial;
+
+    // set the skybox as the default skybox for the scene
+    scene.createDefaultSkybox(envTexture, true); //set false for no ground plane
+    scene.environmentIntensity = 1.0;
+
+    //----end
+
+    //set sun
+    const light = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(0, -1, 0), scene);
+
+    // set the light's position and other properties as needed
+    light.position = new BABYLON.Vector3(0, 10, 0);
+    light.intensity = 1;
+
+    //---sund end
+
+
+
+    // Let's look at how we can load custome assets.
+    // var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
+    // sphere.material = newMaterial;
+
+
+    // var sphere = BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/BabylonJS/MeshesLibrary/master/", "shaderBall.glb", scene);
+    // sphere.material = newMaterial;
+
+    // BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/BabylonJS/MeshesLibrary/master/", "shaderBall.glb", scene, function(newMeshes){
+    //     var sphere = newMeshes[0].getChildMeshes()[0];
+    //     sphere.material = newMaterial;
+    // });    
+    var sphere = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame1.glb", scene);  
+    var tentGame2 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame2.glb", scene);  
+    var bgTrees = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bgTrees.glb", scene);  
+
+    var ground = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ground.glb", scene);
+
+
+    //var sphere = await BABYLON.SceneLoader.ImportMeshAsync("", "file://C:/Users/User/Desktop/babylonTest/", "monkey.glb", scene);  
+   // var sphere = sphere.meshes[1];
+    //sphere.material = newMaterial;
+
+
+    var postProcess = new BABYLON.ColorCorrectionPostProcess("color_correction", "https://raw.githubusercontent.com/lolouisys/babylon/main/colorCorrect.png", 1.0, camera);
+
+
+
+    return scene;
+
+};
+                window.initFunction = async function() {
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();};
+        initFunction().then(() => {scene.then(returnedScene => { sceneToRender = returnedScene; });
+                            
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
