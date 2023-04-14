@@ -58,7 +58,9 @@
         var engine = null;
         var scene = null;
         var sceneToRender = null;
-        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+
+
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { antialias: true, antialiasingLevel: 4, preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
         var createScene = async function () {
 
     // This creates a basic Babylon Scene object (non-mesh)
@@ -67,6 +69,11 @@
     // This creates and positions an arc rotate camera (non-mesh)
     var camera = new BABYLON.ArcRotateCamera("Camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(90), 5, new BABYLON.Vector3(0, 0, 0), scene);    
     camera.attachControl(canvas, false);
+
+    //pipeline from ChatGPT
+    var pipeline = new BABYLON.StandardRenderingPipeline("pipeline", scene, 1.0, null, [camera]);
+    pipeline.samples = 4; // Set the number of samples used for antialiasing
+    pipeline.fxaaEnabled = true; // Enable FXAA antialiasing
 
     // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
     var lightHemi = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
@@ -79,7 +86,12 @@
 
     //add glow layer
     const gl = new
-    BABYLON.GlowLayer("glow", scene);
+    BABYLON.GlowLayer("glow", scene, {
+  mainTextureSamples: 4,
+});
+    gl.intensity = 0.6;
+
+
 
     //-----chatgpt help create skybox
     // create a new environment texture
@@ -96,7 +108,7 @@
 
     // set the skybox as the default skybox for the scene
     scene.createDefaultSkybox(envTexture, true); //set false for no ground plane
-    scene.environmentIntensity = 1.0;
+    scene.environmentIntensity = 1.2;
 
     //----end
 
@@ -123,11 +135,25 @@
     //     var sphere = newMeshes[0].getChildMeshes()[0];
     //     sphere.material = newMaterial;
     // });    
-    var sphere = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame1.glb", scene);  
+    var tentGame1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame1.glb", scene);  
     var tentGame2 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame2.glb", scene);  
+    var tentQA= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentQA.glb", scene);  
+    var tentReward= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentReward.glb", scene);  
+
+    var balloonLeft= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "balloonLeft.glb", scene);  
+    var balloonCenter= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "balloonCenter.glb", scene);  
+    var balloonRight= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "balloonRight.glb", scene);  
+
+    var ferrisWheel= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ferrisWheel.glb", scene);  
+
+
     var bgTrees = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bgTrees.glb", scene);  
 
     var ground = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ground.glb", scene);
+    var path = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "path.glb", scene);
+
+    //buildings
+    var bldg_ifc= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_ifc.glb", scene);  
 
 
     //var sphere = await BABYLON.SceneLoader.ImportMeshAsync("", "file://C:/Users/User/Desktop/babylonTest/", "monkey.glb", scene);  
