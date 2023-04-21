@@ -67,7 +67,8 @@
     var scene = new BABYLON.Scene(engine);
 
     // This creates and positions an arc rotate camera (non-mesh)
-    var camera = new BABYLON.ArcRotateCamera("Camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(90), 5, new BABYLON.Vector3(0, 0, 0), scene);    
+    var camera = new BABYLON.ArcRotateCamera("Camera", BABYLON.Tools.ToRadians(60), BABYLON.Tools.ToRadians(100), 5, new BABYLON.Vector3(2, 1.0, 1), scene);   
+    camera.maxZ = 500000; 
     camera.attachControl(canvas, false);
 
     //pipeline from ChatGPT
@@ -152,20 +153,100 @@
     var bgTrees = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bgTrees.glb", scene);  
 
     var ground = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ground.glb", scene);
+    var groundOuter = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "groundOuter.glb", scene);
+
     var path = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "path.glb", scene);
+    var pier1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "pier1.glb", scene);
+    var pier1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "pier2.glb", scene);
+
 
     //buildings
     var bldg_ifc= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_ifc.glb", scene);  
+    var bldg_bankOfAmerica = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_bankOfAmerica.glb", scene);  
+    var bldg_hutchinsonHouse = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_hutchinsonHouse.glb", scene);  
+    var bldg_cityHall = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_cityHall.glb", scene);  
+    var bldg_jadineHouse = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_jadineHouse.glb", scene);  
+
 
 
     //var sphere = await BABYLON.SceneLoader.ImportMeshAsync("", "file://C:/Users/User/Desktop/babylonTest/", "monkey.glb", scene);  
    // var sphere = sphere.meshes[1];
     //sphere.material = newMaterial;
 
+    //uv animation
+    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame1ScrollLights.glb", scene, function (newMeshes) {
+    var mesh = newMeshes[1];
+
+        // Make sure a material has been assigned to the mesh
+        if (mesh.material) {
+            // Check if the material has a diffuse texture
+            if (typeof mesh.material.albedoTexture  !== "undefined") {
+                // Set the UV transform
+                mesh.material.albedoTexture.uOffset = 0;
+                mesh.material.albedoTexture.vOffset = 0;
+                mesh.material.albedoTexture.uScale = 1;
+                mesh.material.albedoTexture.vScale = 1;
+
+                // Animate the UV
+                scene.registerAfterRender(function () {
+                    var time = new Date().getTime();
+                    var speed = 0.0005;
+                    //mesh.material.albedoTexture.uOffset = (time * speed) % 1;
+                    mesh.material.albedoTexture.vOffset = (time * speed) % 1;
+                });
+            } else {
+                console.error("Material does not have a diffuse texture.");
+            }
+        } else {
+            console.error("Mesh does not have a material applied.");
+        }
+    }, function (evt) {
+        console.log("Model loading failed: " + evt);
+    });
+
+    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame2ScrollLights.glb", scene, function (newMeshes) {
+    var mesh = newMeshes[1];
+
+        // Make sure a material has been assigned to the mesh
+        if (mesh.material) {
+            // Check if the material has a diffuse texture
+            if (typeof mesh.material.albedoTexture  !== "undefined") {
+                // Set the UV transform
+                mesh.material.albedoTexture.uOffset = 0;
+                mesh.material.albedoTexture.vOffset = 0;
+                mesh.material.albedoTexture.uScale = 1;
+                mesh.material.albedoTexture.vScale = 1;
+
+                // Animate the UV
+                scene.registerAfterRender(function () {
+                    var time = new Date().getTime();
+                    var speed = 0.0005;
+                    //mesh.material.albedoTexture.uOffset = (time * speed) % 1;
+                    mesh.material.albedoTexture.vOffset = (time * speed) % 1;
+                });
+            } else {
+                console.error("Material does not have a diffuse texture.");
+            }
+        } else {
+            console.error("Mesh does not have a material applied.");
+        }
+    }, function (evt) {
+        console.log("Model loading failed: " + evt);
+    });
 
     var postProcess = new BABYLON.ColorCorrectionPostProcess("color_correction", "https://raw.githubusercontent.com/lolouisys/babylon/main/colorCorrect.png", 1.0, camera);
 
+    //ocean
+    var ocean = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100, subdivisions: 256 }, scene);
+    ocean.scaling = new BABYLON.Vector3(0.3, 0.2, 0.3);
+    ocean.rotation.y = Math.PI*1;
+    ocean.position = new BABYLON.Vector3(0, -0.2, 5);
 
+    BABYLON.NodeMaterial.ParseFromSnippetAsync("#3FU5FG#1", scene).then((mat) => {
+
+        ocean.material = mat;
+        window.mat = mat;
+    });
 
     return scene;
 
