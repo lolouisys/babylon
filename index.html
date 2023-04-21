@@ -70,6 +70,8 @@
     var camera = new BABYLON.ArcRotateCamera("Camera", BABYLON.Tools.ToRadians(60), BABYLON.Tools.ToRadians(100), 5, new BABYLON.Vector3(2, 1.0, 1), scene);   
     camera.maxZ = 500000; 
     camera.attachControl(canvas, false);
+    camera.panningSensibility = 15;
+    camera.wheelPrecision = 100;
 
     //pipeline from ChatGPT
     var pipeline = new BABYLON.StandardRenderingPipeline("pipeline", scene, 1.0, null, [camera]);
