@@ -157,6 +157,10 @@
     var ground = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ground.glb", scene);
     var groundOuter = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "groundOuter.glb", scene);
 
+    var backdrop = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "backdrop.glb", scene);  
+    var ocean = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ocean.glb", scene);  
+
+
     var path = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "path.glb", scene);
     var pier1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "pier1.glb", scene);
     var pier1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "pier2.glb", scene);
@@ -239,16 +243,15 @@
     var postProcess = new BABYLON.ColorCorrectionPostProcess("color_correction", "https://raw.githubusercontent.com/lolouisys/babylon/main/colorCorrect.png", 1.0, camera);
 
     //ocean
-    var ocean = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100, subdivisions: 256 }, scene);
+/*     var ocean = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100, subdivisions: 256 }, scene);
     ocean.scaling = new BABYLON.Vector3(0.3, 0.2, 0.3);
     ocean.rotation.y = Math.PI*1;
     ocean.position = new BABYLON.Vector3(0, -0.2, 5);
 
     BABYLON.NodeMaterial.ParseFromSnippetAsync("#3FU5FG#1", scene).then((mat) => {
-
         ocean.material = mat;
         window.mat = mat;
-    });
+    }); */
 
     return scene;
 
