@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            
+            #canvasZone {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+<body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+
+
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { antialias: true, antialiasingLevel: 4, preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var createScene = async function () {
+
+    // This creates a basic Babylon Scene object (non-mesh)
+    var scene = new BABYLON.Scene(engine);
+
+    // This creates and positions an arc rotate camera (non-mesh)
+    var camera = new BABYLON.ArcRotateCamera("Camera", BABYLON.Tools.ToRadians(60), BABYLON.Tools.ToRadians(100), 5, new BABYLON.Vector3(2, 1.0, 1), scene);   
+    camera.maxZ = 500000; 
+    camera.attachControl(canvas, false);
+    camera.panningSensibility = 15;
+    camera.wheelPrecision = 100;
+
+    //pipeline from ChatGPT
+    var pipeline = new BABYLON.StandardRenderingPipeline("pipeline", scene, 1.0, null, [camera]);
+    pipeline.samples = 4; // Set the number of samples used for antialiasing
+    pipeline.fxaaEnabled = true; // Enable FXAA antialiasing
+
+    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+    var lightHemi = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    // Default intensity is 1. Let's dim the light a small amount
+    lightHemi.intensity = 0.7;
+
+    //Creates a new standard material and sets the diffuse color to blue.
+    var newMaterial = new BABYLON.StandardMaterial;
+    newMaterial.diffuseColor = new BABYLON.Color3.Blue;
+
+    //add glow layer
+    const gl = new
+    BABYLON.GlowLayer("glow", scene, {
+  mainTextureSamples: 4,
+});
+    gl.intensity = 0.6;
+
+
+
+/*     //-----chatgpt help create skybox
+    // create a new environment texture
+    const envTexture = new BABYLON.CubeTexture("https://raw.githubusercontent.com/lolouisys/babylon/main/sky.env", scene);
+
+    // create a new skybox
+    const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene);
+    const skyboxMaterial = new BABYLON.StandardMaterial("skyBoxMaterial", scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = envTexture;
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.disableLighting = true;
+    skybox.material = skyboxMaterial;
+
+    // set the skybox as the default skybox for the scene
+    scene.createDefaultSkybox(envTexture, true); //set false for no ground plane
+    scene.environmentIntensity = 1.2;
+
+    //----end */
+
+    //set sun
+    const light = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(0, -1, 0), scene);
+
+    // set the light's position and other properties as needed
+    light.position = new BABYLON.Vector3(0, 10, 0);
+    light.intensity = 1;
+
+    //---sund end
+
+
+
+    // Let's look at how we can load custome assets.
+    // var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
+    // sphere.material = newMaterial;
+
+
+    // var sphere = BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/BabylonJS/MeshesLibrary/master/", "shaderBall.glb", scene);
+    // sphere.material = newMaterial;
+
+    // BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/BabylonJS/MeshesLibrary/master/", "shaderBall.glb", scene, function(newMeshes){
+    //     var sphere = newMeshes[0].getChildMeshes()[0];
+    //     sphere.material = newMaterial;
+    // });    
+    var tentGame1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame1.glb", scene);  
+    var tentGame2 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame2.glb", scene);  
+    var tentQA= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentQA.glb", scene);  
+    var tentReward= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentReward.glb", scene);  
+
+    var balloonLeft= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "balloonLeft.glb", scene);  
+    var balloonCenter= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "balloonCenter.glb", scene);  
+    var balloonRight= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "balloonRight.glb", scene);  
+
+    var ferrisWheel= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ferrisWheel.glb", scene);  
+    var streetLamps= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "streetLamps.glb", scene);  
+    var railing= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "railing.glb", scene);  
+
+
+    var bgTrees = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bgTrees.glb", scene);  
+
+    var ground = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ground.glb", scene);
+    var groundOuter = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "groundOuter.glb", scene);
+
+   // var backdrop = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "backdrop.glb", scene);  
+    var backdrop = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "backdrop1024.glb", scene);  
+
+    var ocean = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "ocean.glb", scene);  
+
+
+    var path = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "path.glb", scene);
+    var pier1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "pier1.glb", scene);
+    var pier1 = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "pier2.glb", scene);
+
+
+    //buildings
+    var bldg_ifc= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_ifc.glb", scene);  
+    var bldg_bankOfAmerica = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_bankOfAmerica.glb", scene);  
+    var bldg_hutchinsonHouse = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_hutchinsonHouse.glb", scene);  
+    var bldg_cityHall = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_cityHall.glb", scene);  
+    var bldg_jadineHouse = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bldg_jadineHouse.glb", scene);  
+
+
+
+    //var sphere = await BABYLON.SceneLoader.ImportMeshAsync("", "file://C:/Users/User/Desktop/babylonTest/", "monkey.glb", scene);  
+   // var sphere = sphere.meshes[1];
+    //sphere.material = newMaterial;
+
+/*     //uv animation
+    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame1ScrollLights.glb", scene, function (newMeshes) {
+    var mesh = newMeshes[1];
+
+        // Make sure a material has been assigned to the mesh
+        if (mesh.material) {
+            // Check if the material has a diffuse texture
+            if (typeof mesh.material.albedoTexture  !== "undefined") {
+                // Set the UV transform
+                mesh.material.albedoTexture.uOffset = 0;
+                mesh.material.albedoTexture.vOffset = 0;
+                mesh.material.albedoTexture.uScale = 1;
+                mesh.material.albedoTexture.vScale = 1;
+
+                // Animate the UV
+                scene.registerAfterRender(function () {
+                    var time = new Date().getTime();
+                    var speed = 0.0005;
+                    //mesh.material.albedoTexture.uOffset = (time * speed) % 1;
+                    mesh.material.albedoTexture.vOffset = (time * speed) % 1;
+                });
+            } else {
+                console.error("Material does not have a diffuse texture.");
+            }
+        } else {
+            console.error("Mesh does not have a material applied.");
+        }
+    }, function (evt) {
+        console.log("Model loading failed: " + evt);
+    }); */
+
+/*     BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "tentGame2ScrollLights.glb", scene, function (newMeshes) {
+    var mesh = newMeshes[1];
+
+        // Make sure a material has been assigned to the mesh
+        if (mesh.material) {
+            // Check if the material has a diffuse texture
+            if (typeof mesh.material.albedoTexture  !== "undefined") {
+                // Set the UV transform
+                mesh.material.albedoTexture.uOffset = 0;
+                mesh.material.albedoTexture.vOffset = 0;
+                mesh.material.albedoTexture.uScale = 1;
+                mesh.material.albedoTexture.vScale = 1;
+
+                // Animate the UV
+                scene.registerAfterRender(function () {
+                    var time = new Date().getTime();
+                    var speed = 0.0005;
+                    //mesh.material.albedoTexture.uOffset = (time * speed) % 1;
+                    mesh.material.albedoTexture.vOffset = (time * speed) % 1;
+                });
+            } else {
+                console.error("Material does not have a diffuse texture.");
+            }
+        } else {
+            console.error("Mesh does not have a material applied.");
+        }
+    }, function (evt) {
+        console.log("Model loading failed: " + evt);
+    }); */
+
+    var postProcess = new BABYLON.ColorCorrectionPostProcess("color_correction", "https://raw.githubusercontent.com/lolouisys/babylon/main/colorCorrect.png", 1.0, camera);
+
+    //ocean
+/*     var ocean = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100, subdivisions: 256 }, scene);
+    ocean.scaling = new BABYLON.Vector3(0.3, 0.2, 0.3);
+    ocean.rotation.y = Math.PI*1;
+    ocean.position = new BABYLON.Vector3(0, -0.2, 5);
+
+    BABYLON.NodeMaterial.ParseFromSnippetAsync("#3FU5FG#1", scene).then((mat) => {
+        ocean.material = mat;
+        window.mat = mat;
+    }); */
+
+    return scene;
+
+};
+                window.initFunction = async function() {
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();};
+        initFunction().then(() => {scene.then(returnedScene => { sceneToRender = returnedScene; });
+                            
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
