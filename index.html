@@ -73,10 +73,10 @@
     camera.panningSensibility = 15;
     camera.wheelPrecision = 100;
 
-    //pipeline from ChatGPT
+/*     //pipeline from ChatGPT
     var pipeline = new BABYLON.StandardRenderingPipeline("pipeline", scene, 1.0, null, [camera]);
     pipeline.samples = 4; // Set the number of samples used for antialiasing
-    pipeline.fxaaEnabled = true; // Enable FXAA antialiasing
+    pipeline.fxaaEnabled = true; // Enable FXAA antialiasing */
 
     // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
     var lightHemi = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
