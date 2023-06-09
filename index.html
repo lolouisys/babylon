@@ -103,14 +103,14 @@
     // create a new skybox
     const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene);
     const skyboxMaterial = new BABYLON.StandardMaterial("skyBoxMaterial", scene);
-    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.backFaceCullingD = false;
     skyboxMaterial.reflectionTexture = envTexture;
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     skyboxMaterial.disableLighting = true;
     skybox.material = skyboxMaterial;
 
     // set the skybox as the default skybox for the scene
-    scene.createDefaultSkybox(envTexture, true); //set false for no ground plane
+    dscene.createDefaultSkybox(envTexture, true); //set false for no ground plane
     scene.environmentIntensity = 1.2;
 
     //----end
@@ -152,6 +152,7 @@
     var streetLamps= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "streetLamps.glb", scene);  
     var railing= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "railing.glb", scene);  
 
+    var car= await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "car.glb", scene);  
 
     var bgTrees = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/lolouisys/babylon/main/", "bgTrees.glb", scene);  
 
